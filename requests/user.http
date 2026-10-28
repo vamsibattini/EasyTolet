@@ -1,0 +1,203 @@
+# Requests now go through EasyTolet.Gateway. Start the gateway and target service first.
+# Use HTTPS and a client cookie jar for login, refresh and logout.
+# Replace placeholders locally; do not commit real passwords/tokens.
+@baseUrl = https://localhost:7001
+@accessToken = REPLACE_WITH_ACCESS_TOKEN
+@csrfToken = REPLACE_WITH_LATEST_CSRF_TOKEN
+@confirmationToken = REPLACE_WITH_EMAILED_TOKEN
+@userId = 1
+@roleId = 1
+@sessionId = REPLACE_WITH_SESSION_GUID
+
+### Register using an existing UserService-local RoleId. This does not grant privileges.
+POST {{baseUrl}}/api/users/register
+Content-Type: application/json
+
+{
+  "password": "Example-only-password-123!",
+  "roleId": {{roleId}},
+  "firstName": "Example",
+  "lastName": "User",
+  "address1": "Example Road",
+  "country": "India",
+  "state": "Telangana",
+  "city": "Hyderabad",
+  "pinNumber": "500001",
+  "mobileNumber": "+919876543210",
+  "emailId": "example-user@example.com"
+}
+
+### Obtain CSRF token and retain the Set-Cookie response in your client cookie jar.
+GET {{baseUrl}}/api/login/csrf
+
+### Log in; set csrfToken above from the preceding response and send its cookie.
+# Copy accessToken and the NEW csrfToken from the login response for subsequent requests.
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{
+  "emailId": "example-user@example.com",
+  "password": "Example-only-password-123!"
+}
+
+### Refresh (requires login-session, refresh and CSRF cookies)
+POST {{baseUrl}}/api/login/refresh
+X-CSRF-TOKEN: {{csrfToken}}
+
+### Own profile (Bearer token must include user_id and sid from login)
+GET {{baseUrl}}/api/account/profile
+Authorization: Bearer {{accessToken}}
+
+### Update own profile
+PUT {{baseUrl}}/api/account/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Example",
+  "lastName": "User",
+  "address1": "Updated Road",
+  "country": "India",
+  "state": "Telangana",
+  "city": "Hyderabad",
+  "pinNumber": "500001"
+}
+
+### List users (requires users.manage permission)
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{accessToken}}
+
+### Get own user record, or another record with users.manage
+GET {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### Administrative profile update (requires users.manage; omitted password preserves it)
+PUT {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "roleId": {{roleId}},
+  "firstName": "Example",
+  "address1": "Example Road",
+  "country": "India",
+  "state": "Telangana",
+  "city": "Hyderabad",
+  "pinNumber": "500001",
+  "mobileNumber": "+919876543210",
+  "emailId": "example-user@example.com",
+  "isActive": true
+}
+
+### Change password (revokes sessions; sign in again afterward)
+POST {{baseUrl}}/api/account/password/change
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "Example-only-password-123!",
+  "newPassword": "Replacement-only-password-456!"
+}
+
+### Request password reset (requires configured NotificationService to deliver)
+POST {{baseUrl}}/api/account/password/forgot
+Content-Type: application/json
+
+{ "email": "example-user@example.com" }
+
+### Complete password reset
+POST {{baseUrl}}/api/account/password/reset
+Content-Type: application/json
+
+{ "token": "{{confirmationToken}}", "newPassword": "Replacement-only-password-456!" }
+
+### Contact verification status
+GET {{baseUrl}}/api/account/verification
+Authorization: Bearer {{accessToken}}
+
+### Request email verification (destination optional; omit to verify existing email)
+POST {{baseUrl}}/api/account/verification/request
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{ "channel": "email" }
+
+### Confirm verification
+POST {{baseUrl}}/api/account/verification/confirm
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{ "token": "{{confirmationToken}}" }
+
+### List active sessions
+GET {{baseUrl}}/api/account/sessions
+Authorization: Bearer {{accessToken}}
+
+### Revoke one owned session
+DELETE {{baseUrl}}/api/account/sessions/{{sessionId}}
+Authorization: Bearer {{accessToken}}
+
+### Revoke every session (sign in again afterward)
+DELETE {{baseUrl}}/api/account/sessions
+Authorization: Bearer {{accessToken}}
+
+### Enabled SSO providers
+GET {{baseUrl}}/api/users/sso/providers
+
+### Start SSO in a browser, preserving cookies through the provider redirect.
+GET {{baseUrl}}/api/users/sso/Google/login
+
+### Existing SSO session
+GET {{baseUrl}}/api/users/sso/session
+
+### Exchange authenticated SSO session for an access token (SSO cookies + CSRF)
+POST {{baseUrl}}/api/login/sso
+X-CSRF-TOKEN: {{csrfToken}}
+
+### Log out
+POST {{baseUrl}}/api/login/logout
+X-CSRF-TOKEN: {{csrfToken}}
+
+### Request self-deletion confirmation (run intentionally against a test account)
+POST {{baseUrl}}/api/account/deletion/request
+Authorization: Bearer {{accessToken}}
+
+### Confirm self-deletion (deactivates account)
+POST {{baseUrl}}/api/account/deletion/confirm
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{ "token": "{{confirmationToken}}" }
+
+### Administrative soft deletion (requires users.manage; test accounts only)
+DELETE {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### SSO registration after callback returned registrationRequired=true (external SSO cookie + CSRF)
+POST {{baseUrl}}/api/users/sso/register
+X-CSRF-TOKEN: {{csrfToken}}
+Content-Type: application/json
+
+{
+  "roleId": {{roleId}},
+  "firstName": "Example",
+  "address1": "Example Road",
+  "country": "India",
+  "state": "Telangana",
+  "city": "Hyderabad",
+  "pinNumber": "500001",
+  "mobileNumber": "+919876543210",
+  "emailId": "example-user@example.com"
+}
+
+### End SSO session (SSO cookie + CSRF)
+POST {{baseUrl}}/api/users/sso/logout
+X-CSRF-TOKEN: {{csrfToken}}
+
+### Phone verification (returns 503 until the SMS workflow is enabled/configured)
+POST {{baseUrl}}/api/account/verification/request
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{ "channel": "phone", "destination": "+919876543210" }

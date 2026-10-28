@@ -1,0 +1,32 @@
+@baseUrl = https://localhost:7001
+@accessToken = REPLACE_WITH_ACCESS_TOKEN
+
+### Gateway's own health
+GET {{baseUrl}}/api/health
+
+### UserService health through the gateway
+GET {{baseUrl}}/health/user
+
+### AdminService health through the gateway
+GET {{baseUrl}}/health/admin
+
+### PropertyService health through the gateway
+GET {{baseUrl}}/health/property
+
+### NotificationService health (notification requests themselves use RabbitMQ)
+GET {{baseUrl}}/health/notification
+
+### Admin roles (requires admin.roles.manage in the JWT)
+GET {{baseUrl}}/api/admin/roles?page=1&pageSize=20
+Authorization: Bearer {{accessToken}}
+
+### Current user profile
+GET {{baseUrl}}/api/account/profile
+Authorization: Bearer {{accessToken}}
+
+### Uniform service prefix: /services/{service-id}/{downstream-path}
+GET {{baseUrl}}/services/user/api/users
+Authorization: Bearer {{accessToken}}
+
+### Development OpenAPI document used by gateway Swagger UI
+GET {{baseUrl}}/docs/user/swagger.json

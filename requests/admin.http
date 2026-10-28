@@ -1,0 +1,43 @@
+# Requests now go through EasyTolet.Gateway. Start the gateway and target service first.
+# Use an authorized test account. Registration alone does not grant admin permissions.
+@baseUrl = https://localhost:7001
+@accessToken = REPLACE_WITH_JWT_WITH_admin.roles.manage_PERMISSION
+@roleId = 1
+
+### List roles (permission: admin.roles.manage)
+GET {{baseUrl}}/api/admin/roles?page=1&pageSize=20
+Authorization: Bearer {{accessToken}}
+
+### Get role
+GET {{baseUrl}}/api/admin/roles/{{roleId}}
+Authorization: Bearer {{accessToken}}
+
+### Create role (also requires positive numeric user_id claim)
+POST {{baseUrl}}/api/admin/roles
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "roleCode": "TENANT",
+  "roleName": "Tenant",
+  "parentRoleId": null,
+  "description": "Tenant role",
+  "isActive": true
+}
+
+### Update role
+PUT {{baseUrl}}/api/admin/roles/{{roleId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "roleCode": "TENANT",
+  "roleName": "Tenant",
+  "parentRoleId": null,
+  "description": "Updated tenant role",
+  "isActive": true
+}
+
+### Soft-delete role (run intentionally against a test role)
+DELETE {{baseUrl}}/api/admin/roles/{{roleId}}
+Authorization: Bearer {{accessToken}}

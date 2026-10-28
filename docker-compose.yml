@@ -1,0 +1,235 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  easytolet.gateway:
+    build:
+      context: ./src/EasyToLet.Gateway
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - ExceptionLogging__Database__Server=host.docker.internal
+      - ExceptionLogging__Database__Password=${GATEWAY_LOG_DB_PASSWORD:?Set GATEWAY_LOG_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.identityservice:
+    build:
+      context: ./src/EasyToLet.IdentityService
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${IDENTITYSERVICE_DB_PASSWORD:?Set IDENTITYSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.userservice:
+    build:
+      context: ./src/EasyToLet.UserService
+    ports:
+      - "5003:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${USERSERVICE_DB_PASSWORD:?Set USERSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.propertyservice:
+    build:
+      context: ./src/EasyToLet.PropertyService
+    ports:
+      - "5004:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${PROPERTYSERVICE_DB_PASSWORD:?Set PROPERTYSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.searchservice:
+    build:
+      context: ./src/EasyToLet.SearchService
+    ports:
+      - "5005:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${SEARCHSERVICE_DB_PASSWORD:?Set SEARCHSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.bookingservice:
+    build:
+      context: ./src/EasyToLet.BookingService
+    ports:
+      - "5006:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${BOOKINGSERVICE_DB_PASSWORD:?Set BOOKINGSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.paymentservice:
+    build:
+      context: ./src/EasyToLet.PaymentService
+    ports:
+      - "5007:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${PAYMENTSERVICE_DB_PASSWORD:?Set PAYMENTSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.agreementservice:
+    build:
+      context: ./src/EasyToLet.AgreementService
+    ports:
+      - "5008:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${AGREEMENTSERVICE_DB_PASSWORD:?Set AGREEMENTSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.notificationservice:
+    build:
+      context: ./src/EasyToLet.NotificationService
+    ports:
+      - "5009:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${NOTIFICATIONSERVICE_DB_PASSWORD:?Set NOTIFICATIONSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.chatservice:
+    build:
+      context: ./src/EasyToLet.ChatService
+    ports:
+      - "5010:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${CHATSERVICE_DB_PASSWORD:?Set CHATSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.reviewservice:
+    build:
+      context: ./src/EasyToLet.ReviewService
+    ports:
+      - "5011:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${REVIEWSERVICE_DB_PASSWORD:?Set REVIEWSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.wishlistservice:
+    build:
+      context: ./src/EasyToLet.WishlistService
+    ports:
+      - "5012:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${WISHLISTSERVICE_DB_PASSWORD:?Set WISHLISTSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.mediaservice:
+    build:
+      context: ./src/EasyToLet.MediaService
+    ports:
+      - "5013:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${MEDIASERVICE_DB_PASSWORD:?Set MEDIASERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.analyticsservice:
+    build:
+      context: ./src/EasyToLet.AnalyticsService
+    ports:
+      - "5014:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${ANALYTICSSERVICE_DB_PASSWORD:?Set ANALYTICSSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq
+
+  easytolet.adminservice:
+    build:
+      context: ./src/EasyToLet.AdminService
+    ports:
+      - "5015:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - Database__Server=host.docker.internal
+      - Database__Password=${ADMINSERVICE_DB_PASSWORD:?Set ADMINSERVICE_DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      - rabbitmq

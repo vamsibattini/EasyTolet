@@ -1,0 +1,30 @@
+bin/
+obj/
+**/bin/
+**/obj/
+.vscode/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.DS_Store
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Local credentials and private certificates
+*.pfx
+*.p12
+*.key
+*.pem
+secrets.json
+http-client.private.env.json
+
+# Generated test output
+TestResults/
+coverage/
+
+# Runtime exception logs
+**/logs/
